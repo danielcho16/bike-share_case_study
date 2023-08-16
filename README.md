@@ -27,7 +27,7 @@ This analysis will focus on the first question:
 
 ### Tools
 
-Data cleaning, data analysis and data visualizations done by R
+Data cleaning, data analysis and data visualizations done by R.
 
 
 ### Dataset
