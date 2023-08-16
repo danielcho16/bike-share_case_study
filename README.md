@@ -12,7 +12,7 @@ Cyclistic’s finance analysts have concluded that annual members are much more 
 
 ### Business task
 
-    What are the best marketing strategies to convert casual riders into annual members? 
+|    What are the best marketing strategies to convert casual riders into annual members? 
 
 Break down of the business task with three questions:
 
@@ -22,7 +22,7 @@ Break down of the business task with three questions:
 
 This analysis will focus on the first question:
 
-    How do annual members and casual riders use Cyclistic bikes differently?
+|    How do annual members and casual riders use Cyclistic bikes differently?
 
 
 ### Tools
