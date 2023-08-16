@@ -1,0 +1,283 @@
+---
+title: "Case Study: How Does a Bike-Share Navigate Speedy Success?"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Background
+
+Cyclistic launched a successful bike-share offering with a fleet of 5,824 bicycles that are geotracked and locked into a network of 692 stations across Chicago. The bikes can be unlocked from one station and returned to any other station in the system anytime.
+
+Cyclistic's pricing plans include: single-ride passes, full-day passes, and annual memberships. Customers who purchase single-ride or full-day passes are referred to as casual riders. Customers who purchase annual memberships are Cyclistic members.
+
+Cyclistic’s finance analysts have concluded that annual members are much more profitable than casual riders. Although the pricing flexibility helps Cyclistic attract more customers, the director of marketing believes that maximizing the number of annual members will be key to future growth. Rather than creating a marketing campaign that targets all-new customers, there is a very good chance to convert casual riders into members. Casual riders are already aware of the Cyclistic program and have chosen Cyclistic for their mobility needs.	
+
+-- --
+
+## Business task
+
+|     What are the best marketing strategies to convert casual riders into annual members?
+
+Break down of the business task with three questions:
+
+  1. How do annual members and casual riders use Cyclistic bikes differently?
+
+  2. Why would casual riders buy Cyclistic annual memberships?
+
+  3. How can Cyclistic use digital media to influence casual riders to become members?
+
+This analysis will focus on the first question:
+
+|     How do annual members and casual riders use Cyclistic bikes differently?
+
+-- --
+
+## Data sources
+
+The dataset can be found [here](https://divvy-tripdata.s3.amazonaws.com/index.html). User data is from a 12 month period from January 2022 - December 2022. (Cyclistic is a fictional company and the dataset has been made publicly available by Motivate International Inc. via license). Riders' personal data is unavailable and prohibited.
+
+-- --
+
+\newpage
+
+*Data cleaning, data analysis and data visualization done with R.*
+
+## Data cleaning
+
+```{r libraries, message=FALSE, results='hide'}
+# load libraries used for analysis
+library(tidyverse)
+library(lubridate)
+library(ggplot2)
+```
+
+```{r datasets, echo=-2, message=FALSE, results='hide'}
+# load datasets
+setwd('/Users/daniel/Document/Coding/bike_share/Dataset')
+df_202201 <- read_csv('202201-divvy-tripdata.csv')
+df_202202 <- read_csv('202202-divvy-tripdata.csv')
+df_202203 <- read_csv('202203-divvy-tripdata.csv')
+df_202204 <- read_csv('202204-divvy-tripdata.csv')
+df_202205 <- read_csv('202205-divvy-tripdata.csv')
+df_202206 <- read_csv('202206-divvy-tripdata.csv')
+df_202207 <- read_csv('202207-divvy-tripdata.csv')
+df_202208 <- read_csv('202208-divvy-tripdata.csv')
+df_202209 <- read_csv('202209-divvy-tripdata.csv')
+df_202210 <- read_csv('202210-divvy-tripdata.csv')
+df_202211 <- read_csv('202211-divvy-tripdata.csv')
+df_202212 <- read_csv('202212-divvy-tripdata.csv')
+```
+
+```{r dataframe and cleaning, results='hide'}
+# combine all dataframes into one dataframe
+df_2022 <- bind_rows(df_202201,df_202202,df_202203,df_202204,df_202205,df_202206,
+                     df_202207,df_202208,df_202209,df_202210,df_202211,df_202212)
+head(df_2022)
+
+# check for missing data
+colSums(is.na(df_2022))
+
+# remove columns that are not needed
+df_2022 <- df_2022 %>% 
+  select(-c(start_lat,start_lng,end_lat,end_lng,
+            start_station_id,end_station_id,start_station_name,end_station_name))
+```
+
+```{r review data, results='hide'}
+# column names of the dataframe
+colnames(df_2022)
+
+# dimensions of the dataframe
+dim(df_2022)
+
+# structure of the dataframe
+str(df_2022)
+
+# summary analysis of the dataframe
+summary(df_2022)
+```
+
+```{r tables, results='hide'}
+# check for number of member/casual and rideable type
+table(df_2022$member_casual)
+table(df_2022$rideable_type)
+```
+
+\newpage
+
+```{r date/time columns}
+# add separate columns for date and time
+df_2022$date <- as.Date(df_2022$started_at)
+df_2022$month <- format(as.Date(df_2022$date),'%m')
+df_2022$day <- format(as.Date(df_2022$date),'%d')
+df_2022$year <- format(as.Date(df_2022$date),'%Y')
+df_2022$day_of_week <- format(as.Date(df_2022$date),'%A')
+df_2022$time <- format(as.POSIXct(df_2022$started_at),format='%H:%M')
+```
+
+
+```{r ride_length column, results='hide'}
+# create ride_length column to show the time length of each unique ride
+df_2022$ride_length <- (difftime(df_2022$ended_at,df_2022$started_at,units='mins'))
+df_2022$ride_length <- as.numeric(as.character(df_2022$ride_length))
+
+# check for negative ride lengths and delete them
+table(df_2022$ride_length<0)
+
+# delete negative ride lengths
+df_2022 <- df_2022[!(df_2022$ride_length<0),]
+
+# check summary of new column
+summary(df_2022$ride_length)
+```
+-- --
+
+## Analyze data
+
+```{r aggregate}
+# calculate the mean, median, max, min for each type of customer
+aggregate(df_2022$ride_length ~ df_2022$member_casual, FUN = mean)
+aggregate(df_2022$ride_length ~ df_2022$member_casual, FUN = median)
+aggregate(df_2022$ride_length ~ df_2022$member_casual, FUN = max)
+aggregate(df_2022$ride_length ~ df_2022$member_casual, FUN = min)
+```
+
+\newpage
+
+```{r analyze day of week}
+# order the days of week
+df_2022$day_of_week <- ordered(df_2022$day_of_week,
+                               levels=c('Sunday','Monday','Tuesday','Wednesday',
+                                        'Thursday','Friday','Saturday'))
+
+# average ride time by day of week
+aggregate(df_2022$ride_length ~ df_2022$member_casual + df_2022$day_of_week, FUN = mean)
+```
+
+```{r analyze customers by day, message=FALSE}
+# analyze by type of customers and days of the week
+df_2022 %>% 
+  mutate(weekday=wday(started_at,label=TRUE)) %>% 
+  group_by(member_casual,weekday) %>% 
+  summarise(number_of_rides=n(),average_duration=mean(ride_length)) %>% 
+  arrange(member_casual,weekday)
+```
+
+\newpage
+
+```{r analyze customers by month, message=FALSE}
+# analyze by type of customers and month
+print(df_2022 %>% 
+        group_by(member_casual,month) %>% 
+        summarise(number_of_rides=n(),average_duration=mean(ride_length)) %>% 
+        arrange(member_casual,month),n=24)
+```
+
+```{r analyze type of bike, message=FALSE}
+# analyze by type of bike
+df_2022 %>% 
+  group_by(member_casual,rideable_type) %>% 
+  summarise(number_of_rides=n(),average_duration=mean(ride_length)) %>% 
+  arrange(member_casual,rideable_type)
+```
+-- --
+
+## Data visualizations
+
+```{r bar chart numbers of rides by day, message=FALSE}
+# bar chart of number of rides by day of week
+df_2022 %>% 
+  mutate(weekday=wday(started_at,label=TRUE)) %>% 
+  group_by(member_casual,weekday) %>% 
+  summarise(number_of_rides=n()) %>% 
+  arrange(member_casual,weekday) %>% 
+  ggplot(aes(x=weekday,y=number_of_rides,fill=member_casual)) + 
+  geom_col(position='dodge') + 
+  labs(x='Day of Week',y='Total Number of Rides',title='Rides per Day of Week',
+       fill='Membership Type') +
+  theme(plot.title=element_text(hjust=0.5)) + scale_fill_brewer(palette='Set2') +
+  scale_y_continuous(breaks=c(100000,200000,300000,400000,500000),
+                     labels=c('100k','200K','300K','400K','500K'))
+```
+
+Casual riders bike usage peaks during the weekend while members bike usage peaks during the weekday. This indicates that members use the bike-share service more for commutes while casual riders use the bike-share service more for leisurely purposes on the weekends.
+
+\newpage
+
+```{r bar chart average duration, message=FALSE}
+# bar chart of average duration of members/casuals
+df_2022 %>% 
+  mutate(weekday=wday(started_at,label=TRUE)) %>% 
+  group_by(member_casual,weekday) %>% 
+  summarise(number_of_rides=n(),average_duration=mean(ride_length)) %>% 
+  arrange(member_casual,weekday) %>% 
+  ggplot(aes(x=weekday,y=average_duration,fill=member_casual)) + 
+  geom_col(position='dodge') +
+  labs(x='Day of Week',y='Average Duration (Min)',
+       title='Average Ride Duration per Day of Week',fill='Membership Type') +
+  theme(plot.title=element_text(hjust=0.5)) + scale_fill_brewer(palette='Set2')
+```
+
+Overall, casual riders use the bike-share service fewer times but for longer rides while members use the bike-share service more often for shorter rides.
+
+\newpage
+
+```{r bar chart number of rides by month, message=FALSE}
+# bar chart of number of rides per month
+df_2022 %>% 
+  group_by(member_casual,month) %>% 
+  summarise(number_of_rides=n()) %>% 
+  arrange(member_casual) %>% 
+  ggplot(aes(x=month,y=number_of_rides,fill=member_casual)) + 
+  geom_col(position='dodge') +
+  labs(x='Month',y='Total Number of Rides',title='Total Number of Rides per Month',
+       fill='Membership Type') +
+  theme(plot.title=element_text(hjust=0.5)) + scale_fill_brewer(palette='Set2') +
+  scale_x_discrete(labels=c('Jan','Feb','Mar','Apr','May','Jun',
+                            'Jul','Aug','Sep','Oct','Nov','Dec')) +
+  scale_y_continuous(breaks=c(100000,200000,300000,400000),
+                     labels=c('100K','200K','300K','400K'))
+```
+
+For both casual riders and members, the number of rides peak during the warmer summer months of Chicago while the number of rides are fewer in the colder winter months of Chicago, with very few casual riders in the winter.
+
+\newpage
+
+```{r bar chart by type of bike, message=FALSE}
+
+# bar chart of number of rentals by type of bike
+df_2022 %>% 
+  ggplot(aes(x=rideable_type,fill=member_casual)) + 
+  geom_bar(position='dodge') +
+  labs(x='Type of Bike',y='Number of Rentals (Millions)',title='Bikes Rented',
+       fill='Type of Membership') +
+  theme(plot.title=element_text(hjust=0.5)) + scale_fill_brewer(palette='Set2') +
+  scale_y_continuous(breaks=c(500000,1000000,1500000),labels=c('0.5M','1.0M','1.5M'))
+```
+
+Most bikes rented are the classic bikes and the electric bikes by both casual riders and members. Members slightly favor the classic bikes while casual riders favor the electric bikes. Members do not ride docked bikes at all while very few casual riders use docked bikes.
+
+-- --
+
+\newpage
+
+## Key Findings
+
+  * There are more riders who are members than casual riders.
+
+  * Members use the bikes throughout the week but slightly more during the weekdays for their commutes but for shorter rides than casual riders.
+
+  * Casual riders use the bikes for longer rides and use it more during the weekends than the weekdays.
+
+  * The bikes overall are used more during the warmer months compared to the colder months with very few casual riders using the bikes during the winter months.
+
+  * Members use the classic bikes and electric bikes, slightly favoring the classic bike and do not use the docked bikes at all. Casual riders favor the electric bikes over the classic bikes with very few using the docked bikes.
+
+## Recommendations
+
+  * Introduce monthly or seasonal membership options for casual riders for the warmer months but more costly per month than an annual membership.
+
+  * Raise prices on single-ride passes or full-day passes. This will push casual riders who use the bike-share service often to become annual members.
