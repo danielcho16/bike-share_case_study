@@ -22,7 +22,7 @@ Break down of the business task with three questions:
 
 This analysis will focus on the first question:
 
-&ensp; How do annual members and casual riders use Cyclistic bikes differently?
+&emsp; How do annual members and casual riders use Cyclistic bikes differently?
 
 
 ### Tools
