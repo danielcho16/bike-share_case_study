@@ -1,2 +1,3 @@
 # Case Study: How Does a Bike-Share Navigate Speedy Success?
 
+This data analysis capstone project is part of the [Google Data Analytics Professional Certificate course](https://www.coursera.org/enroll/google-data-analytics/paidmedia?utm_medium=sem&utm_source=gg&utm_campaign=B2C_NAMER_google-data-analytics_google_FTCOF_professional-certificates_country-US&campaignid=12504215975&adgroupid=122709142727&device=c&keyword=google%20data%20analytics%20certificate&matchtype=b&network=g&devicemodel=&adposition=&creativeid=668441307530&hide_mobile_promo&gclid=EAIaIQobChMI46SHzM7ggAMVZhmtBh1V3wZxEAAYASAAEgJSPfD_BwE#courses).
