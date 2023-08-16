@@ -9,7 +9,10 @@ Cyclistic launched a successful bike-share offering. Pricing plans include singl
 
 Cyclistic’s finance analysts have concluded that annual members are much more profitable than casual riders. Although the pricing flexibility helps Cyclistic attract more customers, the director of marketing believes that maximizing the number of annual members will be key to future growth. Rather than creating a marketing campaign that targets all-new customers, there is a very good chance to convert casual riders into members. Casual riders are already aware of the Cyclistic program and have chosen Cyclistic for their mobility needs.
 
-**Business task**: What are the best marketing strategies to convert casual riders into annual members? 
+
+### Business task
+
+    What are the best marketing strategies to convert casual riders into annual members? 
 
 Break down of the business task with three questions:
 
@@ -19,13 +22,19 @@ Break down of the business task with three questions:
 
 This analysis will focus on the first question:
 
-  How do annual members and casual riders use Cyclistic bikes differently?
+    How do annual members and casual riders use Cyclistic bikes differently?
+
 
 ### Tools
 
-Data cleaning, data analysis and data visualization done by R
+Data cleaning, data analysis and data visualizations done by R
+
 
 ### Dataset
 
 The dataset is publicly availabe [here](https://divvy-tripdata.s3.amazonaws.com/index.html). User data is from a 12 month period from January 2022 - December 2022. (Cyclistic is a fictional company and the dataset has been made publicly available by Motivate International Inc. via license). Riders' personal data is unavailable and prohibited.
 
+
+### Data Analysis Report
+
+The full data analysis report can be found [here](https://github.com/danielcho16/bike-share_case_study/blob/main/bike_share.pdf)
